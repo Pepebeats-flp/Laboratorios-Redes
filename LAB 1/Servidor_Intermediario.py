@@ -1,14 +1,38 @@
-'''Este nodo cumple el rol de comunicar el Cliente con el Servidor Conecta4. Para esto, se deben satisfacer las siguientes tareas:
-• Mantener una conexion TCP con el Cliente.
-• Conectarse, cuando sea requerido, con el Servidor Gato mediante una conexion UDP.
-• Responder al Cliente con el mensaje que recibe del Servidor Conecta4.
-• Este debe procesar el turno revisando posibles ganadores y enviar el resultado junto con la jugada al Cliente.
-• Alertar al Servidor Conecta4 del termino del juego para que, este pueda terminar su ejecucion
-• Debe terminar su ejecucion cuando el Cliente le indique el termino del juego (No sin antes igualmente notificar al Servidor Conecta4).
-• Informar sobre el intercambio de mensajes entre los demas nodos. '''
-
-
 import socket
+
+def connect_to_connecta4_server(connecta4_server_address):
+    # Implementa aquí el código para establecer la conexión UDP con el Servidor Conecta4
+    pass
+
+def main():
+    intermediary_server_address = ('', intermediary_server_port)
+    intermediary_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    intermediary_server_socket.bind(intermediary_server_address)
+    intermediary_server_socket.listen(1)
+    print("Esperando conexiones de clientes...")
+    
+    while True:
+        client_socket, client_address = intermediary_server_socket.accept()
+        print(f"Conexión establecida con el cliente en {client_address}")
+        
+        connecta4_server_address = ('connecta4_server_ip', connecta4_server_port)
+        connecta4_server_socket = connect_to_connecta4_server(connecta4_server_address)
+        
+        try:
+            while True:
+                # Implementa la lógica para comunicarte con el Cliente y el Servidor Conecta4
+                pass
+        
+        except Exception as e:
+            print("Error en la comunicación:", e)
+        
+        finally:
+            print("Cerrando la conexión con el cliente y el Servidor Conecta4...")
+            client_socket.close()
+            connecta4_server_socket.close()
+
+if __name__ == "__main__":
+    main()
 
 
 

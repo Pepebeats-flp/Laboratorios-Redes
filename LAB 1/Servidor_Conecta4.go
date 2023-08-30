@@ -1,19 +1,54 @@
-packge main
+package main
 
 import (
-	"net"
-	"math/rand"
-	"time"
 	"fmt"
+	"math/rand"
+	"net"
+	"time"
 )
 
-// Este nodo cumple el rol de BOT en la l´ogica del Jugador versus Computadora. Por lo tanto, 
-// este nodo juega contra el Cliente ejecutando jugadas aleatorias hasta que se le indique el final del
-// juego. Para esto, se deben satisfacer las siguientes tareas:
+func main() {
+	intermediaryServerAddr := "intermediary_server_ip:intermediary_server_port"
+	conn, err := net.Dial("udp", intermediaryServerAddr)
+	if err != nil {
+		fmt.Println("Error al conectar con el Servidor Intermediario:", err)
+		return
+	}
+	defer conn.Close()
 
-//• Abrir una conexi´on UDP para comunicarse con el Servidor Intermediario.
-//• Abrir otra conexi´on UDP en un puerto aleatorio (entre 8000 y 65.535) cada vez que se pida una jugada.
-//• Enviar mensajes al Servidor Intermediario y tambi´en recibir mensajes del mismo.
-//• Debe terminar su ejecuci´on cuando se lo indique el Servidor Intermediario.
-//• Informar de intercambios de mensajes dentro de su consola, junto con la apertura y cierre de puertos.
+	fmt.Println("Conexión establecida con el Servidor Intermediario.")
 
+	rand.Seed(time.Now().UnixNano())
+	port := 8000 + rand.Intn(65535-8000)
+	botAddr := fmt.Sprintf(":%d", port)
+
+	botServerConn, err := net.ListenPacket("udp", botAddr)
+	if err != nil {
+		fmt.Println("Error al abrir el puerto UDP:", err)
+		return
+	}
+	defer botServerConn.Close()
+
+	fmt.Printf("Servidor Conecta4 BOT escuchando en el puerto %d.\n", port)
+
+	buffer := make([]byte, 1024)
+
+	for {
+		n, addr, err := botServerConn.ReadFrom(buffer)
+		if err != nil {
+			fmt.Println("Error al leer desde el puerto UDP:", err)
+			continue
+		}
+
+		message := string(buffer[:n])
+		fmt.Printf("Mensaje recibido desde %s: %s\n", addr, message)
+
+		// Implementa la lógica para generar una jugada aleatoria
+		// y enviarla al Servidor Intermediario
+
+		if message == "fin" {
+			fmt.Println("Terminando la ejecución.")
+			break
+		}
+	}
+}
