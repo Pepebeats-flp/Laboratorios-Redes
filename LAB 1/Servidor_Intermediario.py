@@ -5,7 +5,7 @@ def connect_to_connecta4_server(connecta4_server_address):
     pass
 
 def main():
-    intermediary_server_address = ('', intermediary_server_port)
+    intermediary_server_address = (intermediary_server_ip, intermediary_server_port)
     intermediary_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     intermediary_server_socket.bind(intermediary_server_address)
     intermediary_server_socket.listen(1)
