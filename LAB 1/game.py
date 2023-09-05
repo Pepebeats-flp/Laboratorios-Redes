@@ -34,9 +34,17 @@ def print_board(board):
         print(f"{row_number}|{row_str}")
         print("-" * (cols * 2 - 1))
 
-def modify_board(board, x, y, player):
-    board[x-1][y-1] = player
-    return board
+def modify_board(board, col, player):
+    if(board[0][col] != " "):
+        print("Columna llena, seleccione otra.")
+        return board,False
+    i = len(board[0])
+    while i:
+        if(board[i][col] == " "):
+            board[i][col] = player
+            break
+        i-=1
+    return board,True
 
 def check_winner(board):
     for row in board:
@@ -71,7 +79,7 @@ def main():
     try:
         while True:
             print("- - - - - - - - Bienvenido al Juego - - - - - - - -")
-            print("Seleccione una opción:")
+            print("- Seleccione una opción:")
             print("1-Jugar")
             print("2-Salir")
             
@@ -81,12 +89,14 @@ def main():
                 connect_to_server(server_address)
                 board=create_board(6,6)
                 print("- - - - - - - - Comienza el Juego - - - - - - - -")
-                print_board(board)
-                print("Seleccione un x:")
-                x = int(input(">>"))
-                print("Seleccione un y:")
-                y = int(input(">>"))
-                board=modify_board(board, x, y, "X")
+                col = int(input(">>"))
+                #print("Seleccione un y:")
+                #y = int(input(">>"))
+                played = False
+                while not played:
+                    print_board(board)
+                    print("Seleccione columna:")
+                    board,played=modify_board(board, col, "X")
                 print_board(board)
                 if (check_winner(board) == True):
                     print("Ganaste")
