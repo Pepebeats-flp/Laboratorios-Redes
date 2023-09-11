@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-    // Generar un número de puerto aleatorio entre 49152 y 65535
+    // Generar un número de puerto aleatorio entre 8000 y 65535
     rand.Seed(time.Now().UnixNano())
     minPort := 8000
     maxPort := 65535
