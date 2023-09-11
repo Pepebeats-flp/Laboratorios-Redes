@@ -6,6 +6,8 @@ import random
 node_server_ip = "localhost"
 node_server_port = 5001
 
+host_server_port = random.randint(8000, 65535)
+
 def connect_to_host(host_address):
     # Datos a enviar
     message = "Hola, servidor UDP en Go!"
@@ -51,13 +53,21 @@ def main():
         print("Conexión establecida con el cliente:", client_address)
 
         # Conexion con el conecta4 server
-        connecta4_server_address = (node_server_ip,node_server_port)
+        connecta4_server_address = (node_server_ip,host_server_port)
         connecta4_server_socket = connect_to_connecta4_server(connecta4_server_address)
 
-        message = receive_message(connecta4_server_socket)
+        print("Conexión establecida con el servidor conecta4:", connecta4_server_address)
 
-        send_message(client_socket, message)
-        print("respuesta de disponibilidad:", message)
+        if connecta4_server_socket is None:
+            print("No se pudo establecer conexión con el servidor conecta4.")
+            client_socket.close()
+            print("Conexión con el cliente cerrada.")
+            break
+        else:
+            print("Conexión establecida con el servidor conecta4:", connecta4_server_address)
+
+
+        
         
         #Cerrar la conexión con el cliente y cerrar el servidor
         if message == "NO":
