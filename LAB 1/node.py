@@ -6,26 +6,13 @@ import random
 node_server_ip = "localhost"
 node_server_port = 5001
 
-host_server_port = random.randint(8000, 65535)
+host_server_ip = "localhost"
+host_server_port = None
 
 def connect_to_host(host_address):
-    # Datos a enviar
-    message = "Hola, servidor UDP en Go!"
-
-    # Crear un socket UDP
-    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-    try:
-        # Enviar datos al servidor
-        udp_socket.sendto(message.encode(), host_address)
-
-        # Esperar una respuesta
-        data, server = udp_socket.recvfrom(1024)
-        print(f"Respuesta del servidor ({server}): {data.decode()}")
-    finally:
-        udp_socket.close()
     
-    return data
+
+    pass
 
 def send_message(socket, message):
     socket.send(message.encode())
@@ -36,10 +23,6 @@ def receive_message(socket):
     message = socket.recv(1024)
     message = message.decode()
     return message
-
-def connect_to_connecta4_server(connecta4_server_address):
-    # Implementa aquí el código para establecer la conexión UDP con el Servidor Conecta4
-    pass
 
 def main():
     intermediary_server_address = (node_server_ip, node_server_port)
@@ -52,22 +35,51 @@ def main():
         client_socket, client_address = intermediary_server_socket.accept()
         print("Conexión establecida con el cliente:", client_address)
 
-        # Conexion con el conecta4 server
-        connecta4_server_address = (node_server_ip,host_server_port)
-        connecta4_server_socket = connect_to_connecta4_server(connecta4_server_address)
+        # Datos a enviar
+        message = "Hola, servidor UDP en Go!"
 
-        print("Conexión establecida con el servidor conecta4:", connecta4_server_address)
+        # Crear un socket UDP
+        udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-        if connecta4_server_socket is None:
+        # Enviar una solicitud al servidor Go para obtener el puerto
+        request_message = "Obtener puerto"
+        host_address = (host_server_ip, None)  # None inicialmente
+        udp_socket.sendto(request_message.encode(), host_address)
+
+        # Recibir el puerto del servidor
+        data, server = udp_socket.recvfrom(1024)
+        host_server_port = int(data.decode())  # Actualiza el puerto recibido
+
+        # Mensaje a enviar al servidor Go
+        message = "Hola, servidor UDP en Go!"
+
+        # Establecer la dirección del servidor con el puerto recibido
+        host_address = (host_server_ip, host_server_port)
+
+        # Enviar datos al servidor
+        udp_socket.sendto(message.encode(), host_address)
+
+        # Recibir respuesta del servidor (si es necesario)
+        data, server = udp_socket.recvfrom(1024)
+        print(f"Respuesta del servidor ({server}): {data.decode()}")
+
+        # Cerrar el socket UDP
+        udp_socket.close()
+
+
+        print("Conexión establecida con el servidor conecta4:", host_address)
+
+        
+        if udp_socket is None:
             print("No se pudo establecer conexión con el servidor conecta4.")
             client_socket.close()
             print("Conexión con el cliente cerrada.")
             break
         else:
-            print("Conexión establecida con el servidor conecta4:", connecta4_server_address)
+            print("Conexión establecida con el servidor conecta4:", host_address)
 
 
-        message = receive_message(connecta4_server_socket)
+        message = receive_message(udp_socket)
         print("\n\n"+message+"\n\n")
         
         #Cerrar la conexión con el cliente y cerrar el servidor

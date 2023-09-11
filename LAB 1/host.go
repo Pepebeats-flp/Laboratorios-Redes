@@ -14,9 +14,6 @@ func main() {
     maxPort := 65535
     port := rand.Intn(maxPort-minPort+1) + minPort
 
-    // Buffer para almacenar datos recibidos
-    buffer := make([]byte, 1024)
-
     // Crea una dirección UDP con el puerto aleatorio
     udpAddress, err := net.ResolveUDPAddr("udp", fmt.Sprintf(":%d", port))
     if err != nil {
@@ -30,8 +27,14 @@ func main() {
         fmt.Println("Error al iniciar la conexión UDP:", err)
         return
     }
+    defer udpConn.Close()
 
     fmt.Printf("Servidor UDP escuchando en el puerto aleatorio %d\n", port)
+
+    // Resto del código para recibir y procesar datos
+
+    // Buffer para almacenar datos recibidos
+    buffer := make([]byte, 1024)
 
     for {
         // Leer datos UDP
@@ -50,13 +53,6 @@ func main() {
         _, err = udpConn.WriteToUDP(response, addr)
         if err != nil {
             fmt.Println("Error al enviar la respuesta UDP:", err)
-        }
-
-        // Enviar un mensaje al cliente
-        message := []byte("Hola, cliente. La conexión se estableció correctamente.")
-        _, err = udpConn.WriteToUDP(message, addr)
-        if err != nil {
-            fmt.Println("Error al enviar el mensaje al cliente:", err)
         }
     }
 }
