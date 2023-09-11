@@ -2,7 +2,7 @@ import socket
 import sys
 
 # Dirección IP y puerto del servidor intermediario
-intermediary_server_ip = "192.168.1.12"
+intermediary_server_ip = "localhost"
 intermediary_server_port = 5001
 
 
@@ -31,6 +31,33 @@ def receive_message(socket):
 def disconnect_to_server(socket):
     socket.close()
     return
+
+def create_board(rows, cols):
+    board = [[' ' for _ in range(cols)] for _ in range(rows)]
+    return board
+
+def print_board(board):
+    cols = len(board[0])
+    col_numbers = " ".join(str(i) for i in range(1, cols + 1))
+    print("  " + col_numbers)
+    
+    for row_number, row in enumerate(board, start=1):
+        row_str = " ".join(cell for cell in row)
+        print(f"{row_number}|{row_str}")
+        print("-" * (cols * 2 - 1))
+    return
+
+def modify_board(board, col, player):
+    if(board[0][col] != " "):
+        print("Columna llena, seleccione otra.")
+        return board,False
+    i = len(board[0])
+    while i:
+        if(board[i][col] == " "):
+            board[i][col] = player
+            break
+        i-=1
+    return board,True
 
 
 def menu():
@@ -83,18 +110,6 @@ def menu():
     except Exception as e:
         print("Error al conectar con el servidor:", e)
         sys.exit()
-    return
-    
-
-def print_board(board):
-    cols = len(board[0])
-    col_numbers = " ".join(str(i) for i in range(1, cols + 1))
-    print("  " + col_numbers)
-    
-    for row_number, row in enumerate(board, start=1):
-        row_str = " ".join(cell for cell in row)
-        print(f"{row_number}|{row_str}")
-        print("-" * (cols * 2 - 1))
     return
 
 def main():

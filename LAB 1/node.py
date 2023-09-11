@@ -2,26 +2,28 @@ import socket
 import sys
 import random
 
-# Dirección IP y puerto del cliente
-client_server_ip = "localhost" #vacío para localhost
-client_server_port = 5001
+# Dirección IP y puerto del server intermediario
+node_server_ip = "localhost"
+node_server_port = 5001
 
-# Dirección IP y puerto del servidor host
-host_server_ip = "" #vacío para localhost
-host_server_port = 5001
+def connect_to_host(host_address):
+    # Datos a enviar
+    message = "Hola, servidor UDP en Go!"
 
-def connect_to_client(client_address):
-    node_to_client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # Crear un socket UDP
+    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
     try:
-        node_to_client_socket.connect(client_address)
-    except socket.error as message:
-        print("Error al conectar al cliente en la dirección:", client_address)
-        print(message)
-        sys.exit()
+        # Enviar datos al servidor
+        udp_socket.sendto(message.encode(), host_address)
+
+        # Esperar una respuesta
+        data, server = udp_socket.recvfrom(1024)
+        print(f"Respuesta del servidor ({server}): {data.decode()}")
+    finally:
+        udp_socket.close()
     
-    print("Conectado al cliente en la dirección:", client_address)
-    
-    return node_to_client_socket
+    return data
 
 def send_message(socket, message):
     socket.send(message.encode())
@@ -38,7 +40,7 @@ def connect_to_connecta4_server(connecta4_server_address):
     pass
 
 def main():
-    intermediary_server_address = (host_server_ip, host_server_port)
+    intermediary_server_address = (node_server_ip, node_server_port)
     intermediary_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     intermediary_server_socket.bind(intermediary_server_address)
     intermediary_server_socket.listen(1)
@@ -49,27 +51,21 @@ def main():
         print("Conexión establecida con el cliente:", client_address)
 
         # Conexion con el conecta4 server
-        '''
-        connecta4_server_address = ('connecta4_server_ip', client_server_port)
+        connecta4_server_address = (node_server_ip,node_server_port)
         connecta4_server_socket = connect_to_connecta4_server(connecta4_server_address)
-        '''
-        randint = random.randint(0, 1)
-        if randint == 0:
-            menssage = "NO"
 
-        else:
-            menssage = "OK"
+        message = receive_message(connecta4_server_socket)
 
-        send_message(client_socket, menssage)
-        print("respuesta de disponibilidad:", menssage)
+        send_message(client_socket, message)
+        print("respuesta de disponibilidad:", message)
         
         #Cerrar la conexión con el cliente y cerrar el servidor
-        if menssage == "NO":
+        if message == "NO":
             client_socket.close()
             print("Conexión con el cliente cerrada.")
             break
         
-        elif menssage == "OK":
+        elif message == "OK":
             print("Jugando...")
             print("Jugando...")
             print("Jugando...")
