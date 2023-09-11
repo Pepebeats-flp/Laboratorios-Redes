@@ -67,18 +67,18 @@ def main():
             print("Conexión establecida con el servidor conecta4:", connecta4_server_address)
 
 
-        
+        message = receive_message(connecta4_server_socket)
+        print("\n\n"+message+"\n\n")
         
         #Cerrar la conexión con el cliente y cerrar el servidor
-        if message == "NO":
+        if message == "OK":
+            print("Jugando...")
+            print("Jugando...")
+            print("Jugando...")        
+        else:
             client_socket.close()
             print("Conexión con el cliente cerrada.")
             break
-        
-        elif message == "OK":
-            print("Jugando...")
-            print("Jugando...")
-            print("Jugando...")
 
 
         client_socket.close()
