@@ -11,9 +11,8 @@ func handleUDPConnection(conn *net.UDPConn) {
 	defer conn.Close()
 
 	fmt.Println("Servidor escuchando en " + conn.LocalAddr().String())
-
-	// Buffer para recibir datos
-	buffer := make([]byte, 1024)
+    // Buffer para recibir datos
+    buffer := make([]byte, 1024)
 
 	for {
 		n, addr, err := conn.ReadFromUDP(buffer)
