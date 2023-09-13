@@ -71,6 +71,7 @@ def game(intermediary_socket):
     print_board(my_board)
     print("Ingrese columna:")
     column = input(">>")
+
     my_board,column = modify_board(my_board,int(column),"X")
     
     #Send play to intermediary server
@@ -78,8 +79,14 @@ def game(intermediary_socket):
     
     while not win and not tie and not lose:
         #receive status and bot play
+        print("A")
         response = receive_message(intermediary_socket)
-        status,bot_play = response.split(",")
+        print("B")
+        response = response.split(",")
+        print(response)
+        status = response[0]
+        bot_play = response[1]
+        print("C")
         
         #Update board with bot play
         my_board,bot_play = modify_board(my_board,bot_play,"O")
@@ -144,6 +151,7 @@ def main():
                 
                 if response == "Ok":
                     #Game logic
+                    print("Iniciando juego...")
                     game(intermediary_socket)
                     break
                 

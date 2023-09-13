@@ -75,12 +75,16 @@ def send_receive_udp_message(message,server_address = ('localhost', 12345)):
     # Crear un socket UDP
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+    print(message)
     try:
         # Enviar una solicitud inicial al servidor
+        print("A")
         sock.sendto(message.encode(), server_address)
+        print("B")
 
         # Recibir la respuesta del servidor
         data, server = sock.recvfrom(1024)
+        print("C")
 
         # Decodificar y verificar la respuesta del servidor
         response = data.decode()
@@ -125,7 +129,7 @@ def game(client_socket,bot_address):
         response = response.split(",")
         bot_play = response[0]
         bot_ip = response[1]
-        bot_port = response[2]
+        bot_port = int(response)[2]
         bot_address = (bot_ip,bot_port)
         
         #Apply bot_play
@@ -195,7 +199,7 @@ def main():
             dispo = response[0]
             
             connect4_ip = response[1]
-            connect4_port = response[2]
+            connect4_port = int(response[2])
             connect4_address = (connect4_ip,connect4_port)
             
             #Send response to client
