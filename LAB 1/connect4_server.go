@@ -11,10 +11,11 @@ func handleUDPConnection(conn *net.UDPConn) {
 	defer conn.Close()
 
 	fmt.Println("Servidor escuchando en " + conn.LocalAddr().String())
-    // Buffer para recibir datos
-    buffer := make([]byte, 1024)
+	// Buffer para recibir datos
+	buffer := make([]byte, 1024)
 
 	for {
+		// Leer datos del cliente
 		n, addr, err := conn.ReadFromUDP(buffer)
 		if err != nil {
 			fmt.Println("Error al leer datos:", err)
@@ -34,6 +35,7 @@ func handleUDPConnection(conn *net.UDPConn) {
 				fmt.Println("Error al enviar la respuesta:", err)
 			}
 		}
+		// Verificamos si es una solicitud de terminar el juego
 		if request == "Terminar" {
 			// Respondemos con "OK,IP,PUERTO" si se pudo conectar
 			response := "Ok," + addr.IP.String() + "," + "12346"
@@ -42,6 +44,8 @@ func handleUDPConnection(conn *net.UDPConn) {
 				fmt.Println("Error al enviar la respuesta:", err)
 			}
 		}
+
+		// Verificamos si es una solicitud de jugar
 		if len(request) == 6 {
 			disponibles := []int{}
 			// binario con las columnas disponibles para jugar
@@ -106,10 +110,13 @@ func main() {
 		fmt.Println("Error creando la conexión UDP:", err)
 		return
 	}
-	// Manejar la conexión UDP en una función
-	handleUDPConnection(conn)
 
 	// Cerrar la conexión
 	defer conn.Close()
+
+	// Manejar la conexión indefinidamente
+	for {
+		handleUDPConnection(conn)
+	}
 
 }
