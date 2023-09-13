@@ -65,7 +65,7 @@ def game(intermediary_socket):
     lose = False
     tie = False
     my_board = create_board(6,6)
-    while not win and not Tie and not lose:
+    while not win and not tie and not lose:
         print("------ Mi tablero ------")
         print_board(my_board)
         print("Ingrese columna:")
