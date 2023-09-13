@@ -129,7 +129,7 @@ def game(client_socket,bot_address):
         response = response.split(",")
         bot_play = response[0]
         bot_ip = response[1]
-        bot_port = int(response)[2]
+        bot_port = int(response[2])
         bot_address = (bot_ip,bot_port)
         
         #Apply bot_play

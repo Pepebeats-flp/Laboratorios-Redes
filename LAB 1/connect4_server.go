@@ -7,42 +7,43 @@ import (
 	"strconv"
 )
 
-func handleUDPConnection(conn *net.UDPConn) {
-	defer conn.Close()
-
-	fmt.Println("Servidor escuchando en " + conn.LocalAddr().String())
-	// Buffer para recibir datos
-	buffer := make([]byte, 1024)
-
+func game(ip string, port string, conn_che *net.UDPConn) {
+	// Conectar con el servidor para recibir el tablero
 	for {
-		// Leer datos del cliente
-		n, addr, err := conn.ReadFromUDP(buffer)
+
+		// Crear una dirección UDP en el puerto port
+		addr, err := net.ResolveUDPAddr("udp", "localhost:"+port)
 		if err != nil {
-			fmt.Println("Error al leer datos:", err)
+			fmt.Println("Error resolviendo la dirección:", err)
 			return
 		}
 
-		// Recibimos la solicitud inicial del cliente
-		request := string(buffer[:n])
-		fmt.Printf("Recibido desde %s: %s\n", addr, request)
-
-		// Verificamos si es una solicitud de inicio de juego
-		if request == "Iniciar juego" {
-			// Respondemos con "OK,IP,PUERTO" si se pudo conectar
-			response := "Ok," + addr.IP.String() + "," + "12346"
-			_, err := conn.WriteToUDP([]byte(response), addr)
-			if err != nil {
-				fmt.Println("Error al enviar la respuesta:", err)
-			}
+		// Crear una conexión UDP
+		conn, err := net.ListenUDP("udp", addr)
+		if err != nil {
+			fmt.Println("Error creando la conexión UDP:", err)
+			return
 		}
+
+		// Recibir mensaje y guardar la respuesta en buffer
+		buffer := make([]byte, 1024)
+		n, addr, err := conn.ReadFromUDP(buffer)
+		if err != nil {
+			fmt.Println("Error leyendo el mensaje:", err)
+			return
+		}
+		fmt.Println("Recibido:", string(buffer[0:n]), "de", addr)
+		request := string(buffer[0:n])
+
 		// Verificamos si es una solicitud de terminar el juego
 		if request == "Terminar" {
 			// Respondemos con "OK,IP,PUERTO" si se pudo conectar
-			response := "Ok," + addr.IP.String() + "," + "12346"
+			response := "Terminar"
 			_, err := conn.WriteToUDP([]byte(response), addr)
 			if err != nil {
 				fmt.Println("Error al enviar la respuesta:", err)
 			}
+			break
 		}
 
 		// Verificamos si es una solicitud de jugar
@@ -63,42 +64,23 @@ func handleUDPConnection(conn *net.UDPConn) {
 			// Convertir a string
 			bot_col_str := strconv.Itoa(bot_col)
 
-			// Enviar random_port al cliente medianrte UDP en puerto 12346
+			// Enviar random_port al cliente medianrte UDP en puerto aleatorio
 			random_port := rand.Intn(65535-8000) + 8000
-			random_port_str := strconv.Itoa(random_port)
+			port = strconv.Itoa(random_port)
 
-			// Crear una dirección UDP en el puerto random_port
-			addr, err := net.ResolveUDPAddr("udp", "localhost:"+random_port_str)
-
-			// Crear una conexión UDP
-			conn, err := net.ListenUDP("udp", addr)
-			if err != nil {
-				fmt.Println("Error creando la conexión UDP:", err)
-				return
-			}
-
-			// Cerrar la conexión
-			defer conn.Close()
-
-			// Enviar la columna seleccionada
-			_, err = conn.WriteToUDP([]byte(bot_col_str), addr)
-			if err != nil {
-				fmt.Println("Error al enviar la respuesta:", err)
-			}
-
-		} else {
-			// Respondemos con "No,IP,PUERTO" si no se pudo conectar
-			response := "No," + addr.IP.String() + "," + "12346"
-			_, err := conn.WriteToUDP([]byte(response), addr)
+			// Mandar el puerto y la columna al cliente
+			_, err := conn_che.WriteToUDP([]byte(bot_col_str+",localhost,"+port), addr)
 			if err != nil {
 				fmt.Println("Error al enviar la respuesta:", err)
 			}
 		}
+		// Cerrar la conexión
+		defer conn.Close()
 	}
 }
 
 func main() {
-	// Crear una dirección UDP en el puerto 12345
+	// Creamos la dirección UDP en el puerto 12345
 	addr, err := net.ResolveUDPAddr("udp", "localhost:12345")
 	if err != nil {
 		fmt.Println("Error resolviendo la dirección:", err)
@@ -111,12 +93,32 @@ func main() {
 		return
 	}
 
+	// Recibir y mandar mensajes
+	for {
+		// Recibir mensaje y guardar la respuesta en buffer
+		buffer := make([]byte, 1024)
+		n, addr, err := conn.ReadFromUDP(buffer)
+		if err != nil {
+			fmt.Println("Error leyendo el mensaje:", err)
+			return
+		}
+		fmt.Println("Recibido:", string(buffer[0:n]), "de", addr)
+		request := string(buffer[0:n])
+		// Verificamos si es una solicitud de inicio de juego
+		if request == "Iniciar juego" {
+			// Respondemos con "OK,IP,PUERTO" si se pudo conectar
+			random_port := rand.Intn(65535-8000) + 8000
+			random_port_str := strconv.Itoa(random_port)
+			response := "Ok," + addr.IP.String() + "," + random_port_str
+			_, err := conn.WriteToUDP([]byte(response), addr)
+			if err != nil {
+				fmt.Println("Error al enviar la respuesta:", err)
+			}
+			game(addr.IP.String(), random_port_str, conn)
+
+			break
+		}
+	}
 	// Cerrar la conexión
 	defer conn.Close()
-
-	// Manejar la conexión indefinidamente
-	for {
-		handleUDPConnection(conn)
-	}
-
 }

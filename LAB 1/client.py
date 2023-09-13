@@ -89,7 +89,7 @@ def game(intermediary_socket):
         print("C")
         
         #Update board with bot play
-        my_board,bot_play = modify_board(my_board,bot_play,"O")
+        my_board,bot_play = modify_board(my_board,int(bot_play),"O")
         
         if status == "Bot wins":
             lose = True
@@ -106,7 +106,7 @@ def game(intermediary_socket):
         my_board,column = modify_board(my_board,int(column),"X")
         
         #Send play to intermediary server
-        send_message(intermediary_socket,column)
+        send_message(intermediary_socket,str(column))
         
         #Receive status
         status = receive_message(intermediary_socket)
