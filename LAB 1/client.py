@@ -9,15 +9,21 @@ def create_board(rows, cols):
     return board
 
 def print_board(board):
+    rows = len(board)
     cols = len(board[0])
-    col_numbers = " ".join(str(i) for i in range(1, cols + 1))
-    print("  " + col_numbers)
     
+    # Imprime las filas del tablero
     for row_number, row in enumerate(board, start=1):
-        row_str = " ".join(cell for cell in row)
-        print(f"{row_number}|{row_str}")
-        print("-" * (cols * 2 - 1))
-    return
+        row_str = " | ".join(cell for cell in row)
+        print(f"{row_str}")
+        
+        # Imprime una línea horizontal entre las filas (excepto después de la última)
+        if row_number < rows:
+            print("-" * (cols * 4 - 2))
+    
+    # Imprime los números de columna debajo del tablero
+    col_numbers = "   ".join(str(i) for i in range(1, cols + 1))
+    print(col_numbers)
 
 def modify_board(board,col,player):
     col-=1

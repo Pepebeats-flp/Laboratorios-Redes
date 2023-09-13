@@ -17,7 +17,7 @@ def check_winner(board):
             full = False
             break
         
-    # Verificy horizontally
+    # Verify horizontally
     for row in board:
         for i in range(len(row) - 3):
             if row[i] == row[i + 1] == row[i + 2] == row[i + 3] and row[i] != ' ':
