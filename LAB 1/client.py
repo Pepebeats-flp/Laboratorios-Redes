@@ -65,7 +65,33 @@ def game(intermediary_socket):
     lose = False
     tie = False
     my_board = create_board(6,6)
+    
+    #First turn
+    print("------ Mi tablero ------")
+    print_board(my_board)
+    print("Ingrese columna:")
+    column = input(">>")
+    my_board,column = modify_board(my_board,int(column),"X")
+    
+    #Send play to intermediary server
+    send_message(intermediary_socket,column)
+    
     while not win and not tie and not lose:
+        #receive status and bot play
+        response = receive_message(intermediary_socket)
+        status,bot_play = response.split(",")
+        
+        #Update board with bot play
+        my_board,bot_play = modify_board(my_board,column,"O")
+        
+        if status == "Bot wins":
+            lose = True
+            break
+        elif status == "Tie":
+            tie = True
+            break
+        
+        #Client turn
         print("------ Mi tablero ------")
         print_board(my_board)
         print("Ingrese columna:")
@@ -74,9 +100,9 @@ def game(intermediary_socket):
         
         #Send play to intermediary server
         send_message(intermediary_socket,column)
-        #receive status and bot play
-        response = receive_message(intermediary_socket)
-        status,bot_play = response.split(",")
+        
+        #Receive status
+        status = receive_message(intermediary_socket)
         
         if status == "You win":
             win = True
@@ -84,15 +110,17 @@ def game(intermediary_socket):
             lose = True
         elif status == "Tie":
             tie = True
-            tie = True
-        #receive bot play
-        my_board,bot_play = modify_board(my_board,column,"O")
+        
+    print("------ Mi tablero ------")
+    print_board(my_board)
+    
     if win:
-        print("Ganaste!")
+        print("¡Ganaste!")
     elif lose:
         print("Bot gana")
     elif tie:
         print("Empate")
+    
     return
 
 def main():
