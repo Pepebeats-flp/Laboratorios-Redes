@@ -85,11 +85,14 @@ def send_receive_udp_message(message,server_address = ('localhost', 12345)):
         # Decodificar y verificar la respuesta del servidor
         response = data.decode()
         print("Respuesta del servidor: {}".format(response))
+        
     except Exception as e:
         print(e)
+        
     finally:
         print("Cerrando conexión UDP")
         sock.close()
+        
     return response
 
 def disconnect(socket):
@@ -119,7 +122,10 @@ def game(client_socket,bot_address):
         #Receive bot_play and bot address
         playable = check_playable(board)
         response = send_receive_udp_message(playable,bot_address)
-        bot_play,bot_ip,bot_port = response.split(",")
+        response = response.split(",")
+        bot_play = response[0]
+        bot_ip = response[1]
+        bot_port = response[2]
         bot_address = (bot_ip,bot_port)
         
         #Apply bot_play
