@@ -69,8 +69,8 @@ def game(intermediary_socket):
         print("------ Mi tablero ------")
         print_board(my_board)
         print("Ingrese columna:")
-        column = int(input(">>"))
-        my_board,column = modify_board(my_board,column,"X")
+        column = input(">>")
+        my_board,column = modify_board(my_board,int(column),"X")
         
         #Send play to intermediary server
         send_message(intermediary_socket,column)
