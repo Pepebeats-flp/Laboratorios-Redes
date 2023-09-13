@@ -9,10 +9,8 @@ import (
 
 func handleUDPConnection(conn *net.UDPConn) {
 	defer conn.Close()
-	ip := "localhost"
-	port := conn.LocalAddr().(*net.UDPAddr).Port
 
-	fmt.Println("Servidor escuchando en " + ip + ":" + strconv.Itoa(port))
+	fmt.Println("Servidor escuchando en " + conn.LocalAddr().String())
 
 	// Buffer para recibir datos
 	buffer := make([]byte, 1024)
@@ -97,9 +95,8 @@ func handleUDPConnection(conn *net.UDPConn) {
 }
 
 func main() {
-	id := "loacalhost:12345"
 	// Crear una dirección UDP en el puerto 12345
-	addr, err := net.ResolveUDPAddr("udp", id)
+	addr, err := net.ResolveUDPAddr("udp", "localhost:12345")
 	if err != nil {
 		fmt.Println("Error resolviendo la dirección:", err)
 		return
