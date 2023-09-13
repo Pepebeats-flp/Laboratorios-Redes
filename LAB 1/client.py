@@ -74,7 +74,7 @@ def game(intermediary_socket):
     my_board,column = modify_board(my_board,int(column),"X")
     
     #Send play to intermediary server
-    send_message(intermediary_socket,column)
+    send_message(intermediary_socket,str(column))
     
     while not win and not tie and not lose:
         #receive status and bot play
@@ -143,12 +143,6 @@ def main():
                 response = receive_message(intermediary_socket)
                 
                 if response == "Ok":
-                    #Ask for a new match
-                    send_message(intermediary_socket, "New")
-                    
-                    #Get response from server
-                    response = receive_message(intermediary_socket)
-                    
                     #Game logic
                     game(intermediary_socket)
                     break

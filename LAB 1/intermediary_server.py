@@ -9,32 +9,44 @@ def create_board(rows, cols):
     board = [[' ' for _ in range(cols)] for _ in range(rows)]
     return board
 
-#Corregir!!!!!!!!!!!!
 def check_winner(board):
+    #Verify if board is full
+    full = True
+    for i in range(len(row)):
+        if row[0][i] == ' ':
+            full = False
+            break
+        
+    # Verificy horizontally
     for row in board:
-        if row.count(row[0]) == len(row) and row[0] != ' ':
-            return True
+        for i in range(len(row) - 3):
+            if row[i] == row[i + 1] == row[i + 2] == row[i + 3] and row[i] != ' ':
+                return row[i]
 
+    # Verify vertically
     for col in range(len(board[0])):
-        check = []
-        for row in board:
-            check.append(row[col])
-        if check.count(check[0]) == len(check) and check[0] != ' ':
-            return True
+        for i in range(len(board) - 3):
+            if board[i][col] == board[i + 1][col] == board[i + 2][col] == board[i + 3][col] and board[i][col] != ' ':
+                return board[i][col]
 
-    diagonal1 = []
-    for idx, reverse_idx in enumerate(reversed(range(len(board)))):
-        diagonal1.append(board[idx][reverse_idx])
-    if diagonal1.count(diagonal1[0]) == len(diagonal1) and diagonal1[0] != ' ':
-        return True
+    # Verify diagonal (left to right)
+    for row in range(len(board) - 3):
+        for col in range(len(board[0]) - 3):
+            if board[row][col] == board[row + 1][col + 1] == board[row + 2][col + 2] == board[row + 3][col + 3] and board[row][col] != ' ':
+                return board[row][col]
 
-    diagonal2 = []
-    for ix in range(len(board)):
-        diagonal2.append(board[ix][ix])
-    if diagonal2.count(diagonal2[0]) == len(diagonal2) and diagonal2[0] != ' ':
-        return True
+    # Verify diagonal (right to left)
+    for row in range(len(board) - 3):
+        for col in range(3, len(board[0])):
+            if board[row][col] == board[row + 1][col - 1] == board[row + 2][col - 2] == board[row + 3][col - 3] and board[row][col] != ' ':
+                return board[row][col]
 
-    return False
+    #If board full and no winner
+    if full:
+        return "Tie"
+    
+    #If board not full and no winner
+    return None
 
 def modify_board(board,col,player):
     col-=1
@@ -87,7 +99,7 @@ def game(client_socket,bot_address):
     client = False
     bot = False
     tie = False
-    board = create_board()
+    board = create_board(6,6)
     
     #First turn
     client_play = receive_message(client_socket)
@@ -103,12 +115,12 @@ def game(client_socket,bot_address):
         board = modify_board(board,int(bot_play),"O")
         
         #Check winner
-        winner = check_winner() #Corregir según cambios en la función!!!
+        winner = check_winner(board)
         
-        if winner == 1: #Bot wins
+        if winner == "O": #Bot wins
             bot = True
             break
-        elif winner == 2: #Tie
+        elif winner == "Tie": #Tie
             tie = True
             break
         
@@ -120,10 +132,12 @@ def game(client_socket,bot_address):
         board = modify_board(board,int(client_play),"X")
         
         #Check winner
-        if winner == 1: #Client wins
+        winner = check_winner(board)
+        
+        if winner == "X": #Client wins
             client = True
             break
-        elif winner == 2: #Tie
+        elif winner == "Tie": #Tie
             tie = True
             break
         
