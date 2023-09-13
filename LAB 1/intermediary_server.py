@@ -12,8 +12,8 @@ def create_board(rows, cols):
 def check_winner(board):
     #Verify if board is full
     full = True
-    for i in range(len(row)):
-        if row[0][i] == ' ':
+    for i in range(len(board[0])):
+        if board[0][i] == ' ':
             full = False
             break
         
@@ -61,6 +61,16 @@ def modify_board(board,col,player):
         done = True
     return board
 
+def check_playable(board):
+    playable = ""
+    for i in range(len(board[0])):
+        if board[0][i] == ' ':
+            playable += "1"
+        else:
+            playable += "0"
+            
+    return playable
+
 def send_receive_udp_message(message,server_address = ('localhost', 12345)):
     # Crear un socket UDP
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -107,7 +117,8 @@ def game(client_socket,bot_address):
     
     while not client and not bot and not tie:
         #Receive bot_play and bot address
-        response = send_receive_udp_message("Send play",bot_address)
+        playable = check_playable(board)
+        response = send_receive_udp_message(playable,bot_address)
         bot_play,bot_ip,bot_port = response.split(",")
         bot_address = (bot_ip,bot_port)
         
