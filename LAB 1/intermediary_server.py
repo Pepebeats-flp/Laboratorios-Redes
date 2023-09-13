@@ -5,6 +5,50 @@ import sys
 intermediary_ip = "localhost"
 intermediary_port = 5001
 
+def create_board(rows, cols):
+    board = [[' ' for _ in range(cols)] for _ in range(rows)]
+    return board
+
+#Corregir!!!!!!!!!!!!
+def check_winner(board):
+    for row in board:
+        if row.count(row[0]) == len(row) and row[0] != ' ':
+            return True
+
+    for col in range(len(board[0])):
+        check = []
+        for row in board:
+            check.append(row[col])
+        if check.count(check[0]) == len(check) and check[0] != ' ':
+            return True
+
+    diagonal1 = []
+    for idx, reverse_idx in enumerate(reversed(range(len(board)))):
+        diagonal1.append(board[idx][reverse_idx])
+    if diagonal1.count(diagonal1[0]) == len(diagonal1) and diagonal1[0] != ' ':
+        return True
+
+    diagonal2 = []
+    for ix in range(len(board)):
+        diagonal2.append(board[ix][ix])
+    if diagonal2.count(diagonal2[0]) == len(diagonal2) and diagonal2[0] != ' ':
+        return True
+
+    return False
+
+def modify_board(board,col,player):
+    col-=1
+    done = False
+    while not done:
+        i = len(board[0])
+        while i:
+            if(board[i-1][col] == " "):
+                board[i-1][col] = player
+                break
+            i-=1
+        done = True
+    return board
+
 def send_receive_udp_message(message,server_address = ('localhost', 12345)):
     # Crear un socket UDP
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -39,9 +83,62 @@ def receive_message(socket):
     message = message.decode()
     return message
 
-def game():
-    print("jugando jaja")
-    return
+def game(client_socket,bot_address):
+    client = False
+    bot = False
+    tie = False
+    board = create_board()
+    
+    #First turn
+    client_play = receive_message(client_socket)
+    board = modify_board(board,int(client_play),"X")
+    
+    while not client and not bot and not tie:
+        #Receive bot_play and bot address
+        response = send_receive_udp_message("Send play",bot_address)
+        bot_play,bot_ip,bot_port = response.split(",")
+        bot_address = (bot_ip,bot_port)
+        
+        #Apply bot_play
+        board = modify_board(board,int(bot_play),"O")
+        
+        #Check winner
+        winner = check_winner() #Corregir según cambios en la función!!!
+        
+        if winner == 1: #Bot wins
+            bot = True
+            break
+        elif winner == 2: #Tie
+            tie = True
+            break
+        
+        #Send status to client
+        send_message(client_socket,"Continue,"+bot_play)
+        
+        #Receive client play
+        client_play = receive_message(client_socket)
+        board = modify_board(board,int(client_play),"X")
+        
+        #Check winner
+        if winner == 1: #Client wins
+            client = True
+            break
+        elif winner == 2: #Tie
+            tie = True
+            break
+        
+        #Send status to client
+        send_message(client_socket,"Continue")
+    
+    if client:
+        send_message(client_socket,"You win")
+    elif bot:
+        send_message(client_socket,"Bot wins")
+    elif tie:
+        send_message(client_socket,"Tie")
+        
+        
+    return bot_address
 
 def main():
     intermediary_address = (intermediary_ip, intermediary_port)
@@ -74,11 +171,20 @@ def main():
             send_message(client_socket,dispo)
             
             if dispo == "Ok":
-                game()
+                connect4_address = game(client_socket,connect4_address)
                 break
             
             elif dispo == "No":
                 break
+    
+    #Receive game end message from client
+    message = receive_message(client_socket)
+    
+    #Send game end message to connect4_server
+    response = send_receive_udp_message(message,connect4_address)
+        
+    #Send game end message from client
+    send_message(client_socket,response)
             
     #disconnect to client.py
     disconnect(client_socket)

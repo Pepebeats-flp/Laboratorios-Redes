@@ -82,7 +82,7 @@ def game(intermediary_socket):
         status,bot_play = response.split(",")
         
         #Update board with bot play
-        my_board,bot_play = modify_board(my_board,column,"O")
+        my_board,bot_play = modify_board(my_board,bot_play,"O")
         
         if status == "Bot wins":
             lose = True
@@ -106,8 +106,6 @@ def game(intermediary_socket):
         
         if status == "You win":
             win = True
-        elif status == "Bot wins":
-            lose = True
         elif status == "Tie":
             tie = True
         
