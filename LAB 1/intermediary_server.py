@@ -75,16 +75,12 @@ def send_receive_udp_message(message,server_address = ('localhost', 12345)):
     # Crear un socket UDP
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    print(message)
     try:
         # Enviar una solicitud inicial al servidor
-        print("A")
         sock.sendto(message.encode(), server_address)
-        print("B")
 
         # Recibir la respuesta del servidor
         data, server = sock.recvfrom(1024)
-        print("C")
 
         # Decodificar y verificar la respuesta del servidor
         response = data.decode()
@@ -120,7 +116,7 @@ def game(client_socket,bot_address):
     
     #First turn
     client_play = receive_message(client_socket)
-    board = modify_board(board,int(client_play),"X")
+    board = modify_board(board,int(client_play)+1,"X")
     
     while not client and not bot and not tie:
         #Receive bot_play and bot address
@@ -137,6 +133,7 @@ def game(client_socket,bot_address):
         
         #Check winner
         winner = check_winner(board)
+        #print(winner)
         
         if winner == "O": #Bot wins
             bot = True
@@ -150,7 +147,7 @@ def game(client_socket,bot_address):
         
         #Receive client play
         client_play = receive_message(client_socket)
-        board = modify_board(board,int(client_play),"X")
+        board = modify_board(board,int(client_play)+1,"X")
         
         #Check winner
         winner = check_winner(board)
@@ -168,7 +165,7 @@ def game(client_socket,bot_address):
     if client:
         send_message(client_socket,"You win")
     elif bot:
-        send_message(client_socket,"Bot wins")
+        send_message(client_socket,"Bot wins,"+bot_play)
     elif tie:
         send_message(client_socket,"Tie")
         

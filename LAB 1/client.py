@@ -85,14 +85,10 @@ def game(intermediary_socket):
     
     while not win and not tie and not lose:
         #receive status and bot play
-        print("A")
         response = receive_message(intermediary_socket)
-        print("B")
         response = response.split(",")
-        print(response)
         status = response[0]
         bot_play = response[1]
-        print("C")
         
         #Update board with bot play
         my_board,bot_play = modify_board(my_board,int(bot_play),"O")
@@ -103,6 +99,8 @@ def game(intermediary_socket):
         elif status == "Tie":
             tie = True
             break
+        
+        
         
         #Client turn
         print("------ Mi tablero ------")

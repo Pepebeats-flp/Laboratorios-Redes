@@ -64,7 +64,7 @@ func game(ip string, port string, conn_che *net.UDPConn) {
 			// Convertir a string
 			bot_col_str := strconv.Itoa(bot_col)
 
-			// Enviar random_port al cliente medianrte UDP en puerto aleatorio
+			// Enviar random_port al cliente mediante UDP en puerto aleatorio
 			random_port := rand.Intn(65535-8000) + 8000
 			port = strconv.Itoa(random_port)
 
