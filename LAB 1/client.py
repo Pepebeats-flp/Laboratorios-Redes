@@ -164,6 +164,9 @@ def main():
                     break
                 
             elif choice == "2":#Salir
+                #Connect to intermediary server
+                intermediary_address = (intermediary_ip,intermediary_port)
+                intermediary_socket = connect_to_server(intermediary_address)
                 break
             else:
                 print("Entrada incorrecta, inténtelo nuevamente.")

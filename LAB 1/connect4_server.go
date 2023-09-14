@@ -43,6 +43,8 @@ func game(ip string, port string, conn_che *net.UDPConn) {
 			if err != nil {
 				fmt.Println("Error al enviar la respuesta:", err)
 			}
+			fmt.Println("Enviado: Terminar a ", addr)
+			fmt.Println("Terminando juego...")
 			break
 		}
 
@@ -73,6 +75,7 @@ func game(ip string, port string, conn_che *net.UDPConn) {
 			if err != nil {
 				fmt.Println("Error al enviar la respuesta:", err)
 			}
+			fmt.Println("Enviado:", bot_col_str+", desde localhost,"+port, "a", addr)
 		}
 		// Cerrar la conexión
 		defer conn.Close()
@@ -80,6 +83,7 @@ func game(ip string, port string, conn_che *net.UDPConn) {
 }
 
 func main() {
+
 	// Creamos la dirección UDP en el puerto 12345
 	addr, err := net.ResolveUDPAddr("udp", "localhost:12345")
 	if err != nil {
@@ -96,6 +100,7 @@ func main() {
 	// Recibir y mandar mensajes
 	for {
 		// Recibir mensaje y guardar la respuesta en buffer
+		fmt.Println("Esperando mensaje server intemediario...")
 		buffer := make([]byte, 1024)
 		n, addr, err := conn.ReadFromUDP(buffer)
 		if err != nil {
@@ -114,8 +119,20 @@ func main() {
 			if err != nil {
 				fmt.Println("Error al enviar la respuesta:", err)
 			}
+			fmt.Println("Enviado:", response, "a", addr)
 			game(addr.IP.String(), random_port_str, conn)
 
+			break
+		}
+		if request == "Terminar" {
+			// Respondemos con "OK,IP,PUERTO" si se pudo conectar
+			response := "Terminar"
+			_, err := conn.WriteToUDP([]byte(response), addr)
+			if err != nil {
+				fmt.Println("Error al enviar la respuesta:", err)
+			}
+			fmt.Println("Enviado: Terminar a ", addr)
+			fmt.Println("Terminando juego...")
 			break
 		}
 	}

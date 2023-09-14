@@ -84,13 +84,12 @@ def send_receive_udp_message(message,server_address = ('localhost', 12345)):
 
         # Decodificar y verificar la respuesta del servidor
         response = data.decode()
-        print("Respuesta del servidor: {}".format(response))
+        print("Recibido: ", response, " de ", server)
         
     except Exception as e:
         print(e)
         
     finally:
-        print("Cerrando conexión UDP")
         sock.close()
         
     return response
@@ -116,12 +115,15 @@ def game(client_socket,bot_address):
     
     #First turn
     client_play = receive_message(client_socket)
+    client_address = client_socket.getpeername()
+    print("Recibido: ", client_play, " de ", client_address)
     board = modify_board(board,int(client_play)+1,"X")
     
     while not client and not bot and not tie:
         #Receive bot_play and bot address
         playable = check_playable(board)
         response = send_receive_udp_message(playable,bot_address)
+        print ("Enviado: ", playable, " a ", bot_address)
         response = response.split(",")
         bot_play = response[0]
         bot_ip = response[1]
@@ -144,6 +146,7 @@ def game(client_socket,bot_address):
         
         #Send status to client
         send_message(client_socket,"Continue,"+bot_play)
+        print("Enviado: Continue,",bot_play," a ",client_address)
         
         #Receive client play
         client_play = receive_message(client_socket)
@@ -164,12 +167,14 @@ def game(client_socket,bot_address):
     
     if client:
         send_message(client_socket,"You win")
+        print ("Enviado: ", "You win", " a ", client_address)
     elif bot:
         send_message(client_socket,"Bot wins,"+bot_play)
+        print ("Enviado: ", "Bot wins,"+bot_play, " a ", client_address)
     elif tie:
         send_message(client_socket,"Tie")
-        
-        
+        print ("Enviado: ", "Tie", " a ", client_address)
+    
     return bot_address
 
 def main():
@@ -187,10 +192,12 @@ def main():
         
         #Receive message from client
         solitude = receive_message(client_socket)
+        print ("Recibido: ", solitude, " de ", client_address)
         
         if solitude == "Iniciar juego":
             #Send solitude and receive response from connect4_server.go
             response = send_receive_udp_message(solitude)
+            print ("Enviado: ", solitude, " a localhost:12345")
             response = response.split(",")
             
             dispo = response[0]
@@ -201,6 +208,7 @@ def main():
             
             #Send response to client
             send_message(client_socket,dispo)
+            print ("Enviado: ", dispo, " a ", client_address)
             
             if dispo == "Ok":
                 connect4_address = game(client_socket,connect4_address)
@@ -208,15 +216,24 @@ def main():
             
             elif dispo == "No":
                 break
-    
+        elif solitude == "Terminar":
+            connect4_address = (intermediary_ip,intermediary_port)
+            send_receive_udp_message(solitude,connect4_address)
+            print ("Enviado: ", solitude, " a ", connect4_address)
+
+            break
+            
     #Receive game end message from client
     message = receive_message(client_socket)
+    print ("Recibido: ", message, " de ", client_address)
     
     #Send game end message to connect4_server
     response = send_receive_udp_message(message,connect4_address)
-        
+    print ("Enviado: ", response, " a ", connect4_address)
+    
     #Send game end message from client
     send_message(client_socket,response)
+    print ("Enviado: ", response, " a ", client_address)
             
     #disconnect to client.py
     disconnect(client_socket)
