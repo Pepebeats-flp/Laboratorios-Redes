@@ -74,6 +74,7 @@ def check_playable(board):
 def send_receive_udp_message(message,server_address = ('localhost', 12345)):
     # Crear un socket UDP
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    print(message)
 
     try:
         # Enviar una solicitud inicial al servidor
@@ -188,8 +189,6 @@ def main():
         client_socket, client_address = intermediary_socket.accept()
         print("Conexión establecida con el cliente:", client_address)
         
-        #UDP connection with connect4_server.go
-        
         #Receive message from client
         solitude = receive_message(client_socket)
         print ("Recibido: ", solitude, " de ", client_address)
@@ -212,23 +211,19 @@ def main():
             
             if dispo == "Ok":
                 connect4_address = game(client_socket,connect4_address)
+                #Receive game end message from client
+                solitude = receive_message(client_socket)
+                print ("Recibido: ", solitude, " de ", client_address)
                 break
             
             elif dispo == "No":
                 break
         elif solitude == "Terminar":
-            connect4_address = (intermediary_ip,intermediary_port)
-            send_receive_udp_message(solitude,connect4_address)
-            print ("Enviado: ", solitude, " a ", connect4_address)
-
+            connect4_address = ("localhost",12345)
             break
-            
-    #Receive game end message from client
-    message = receive_message(client_socket)
-    print ("Recibido: ", message, " de ", client_address)
     
     #Send game end message to connect4_server
-    response = send_receive_udp_message(message,connect4_address)
+    response = send_receive_udp_message(solitude,connect4_address)
     print ("Enviado: ", response, " a ", connect4_address)
     
     #Send game end message from client
